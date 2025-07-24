@@ -1,0 +1,1 @@
+// ChaosLock Engine - ritual-based cooldown + cast lockout

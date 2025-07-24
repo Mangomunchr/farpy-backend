@@ -1,0 +1,1 @@
+// VaultEarningsCalculator.js - generated for Farpy MVP

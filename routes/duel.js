@@ -1,0 +1,1 @@
+// Vault Duel - 1v1 casting logic, winner takes % of vault

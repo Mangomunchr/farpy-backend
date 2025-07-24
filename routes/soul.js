@@ -1,0 +1,1 @@
+// NodeSoul - evolve soulprint with job, fail, duel, chaos events

@@ -1,0 +1,1 @@
+// UserAuthCore.js - generated for Farpy MVP

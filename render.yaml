@@ -1,6 +1,4 @@
 ﻿# Farpy on Render — web + workers + cron
-# Drop this file as: render.yaml
-# Then: in Render, create a "Blueprint" and connect the repo that contains this file.
 
 services:
   - type: web

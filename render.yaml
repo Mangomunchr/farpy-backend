@@ -1,0 +1,159 @@
+﻿# Farpy on Render — web + workers + cron
+# Drop this file as: render.yaml
+# Then: in Render, create a "Blueprint" and connect the repo that contains this file.
+
+services:
+  - type: web
+    name: farpy-backend
+    env: node
+    plan: starter
+    rootDir: farpy_backend
+    buildCommand: npm install
+    startCommand: node server.cjs
+    autoDeploy: true
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080
+      - key: INTERNAL_API_TOKEN
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  - type: web
+    name: farpy-admin-web
+    env: node
+    plan: starter
+    rootDir: farpy_live/admin-web
+    buildCommand: npm install
+    startCommand: node server.cjs
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: PUBLIC_BASE
+        sync: false
+      - key: BUNNY_PULLZONE_HOST
+        sync: false
+      - key: BUNNY_SIGNING_KEY
+        sync: false
+      - key: ADMIN_WEB_TOKEN
+        sync: false
+
+  - type: worker
+    name: farpy-worker
+    env: node
+    plan: starter
+    rootDir: farpy_backend
+    buildCommand: npm install
+    startCommand: npm run start:worker
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: INTERNAL_API_TOKEN
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  - type: worker
+    name: farpybot
+    env: node
+    plan: starter
+    rootDir: farpy_discord_bots
+    buildCommand: npm install
+    startCommand: node -r dotenv/config src/index.cjs
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BOT_NAME
+        value: farpybot
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: DISCORD_APP_ID
+        sync: false
+      - key: GUILD_ID
+        sync: false
+      - key: BACKEND_BASE
+        sync: false
+      - key: BACKEND_TOKEN
+        fromService:
+          type: web
+          name: farpy-backend
+          envVarKey: INTERNAL_API_TOKEN
+      - key: ADMIN_WEB_BASE
+        sync: false
+      - key: ADMIN_WEB_TOKEN
+        sync: false
+
+  - type: worker
+    name: chompybot
+    env: node
+    plan: starter
+    rootDir: farpy_discord_bots
+    buildCommand: npm install
+    startCommand: node -r dotenv/config src/index.cjs
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BOT_NAME
+        value: chompybot
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: DISCORD_APP_ID
+        sync: false
+      - key: GUILD_ID
+        sync: false
+      - key: BACKEND_BASE
+        sync: false
+      - key: BACKEND_TOKEN
+        fromService:
+          type: web
+          name: farpy-backend
+          envVarKey: INTERNAL_API_TOKEN
+      - key: ADMIN_WEB_BASE
+        sync: false
+      - key: ADMIN_WEB_TOKEN
+        sync: false
+
+cronJobs:
+  - name: farpy-requeue-stale
+    schedule: "*/5 * * * *"
+    env: node
+    plan: starter
+    rootDir: farpy_backend
+    buildCommand: npm install
+    startCommand: node -r dotenv/config src/cli/requeue_stale.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  - name: farpy-prune
+    schedule: "0 3 * * *"
+    env: node
+    plan: starter
+    rootDir: farpy_backend
+    buildCommand: npm install
+    startCommand: node -r dotenv/config src/cli/prune.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
